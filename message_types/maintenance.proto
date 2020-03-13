@@ -1,29 +1,41 @@
 syntax = "proto3";
 
 message Maintenance {
-  
-  message Time {
-	message Current {
-		int32 year = 1;
-		int32 month = 2;
-		int32 day = 3;
-		int32 hour = 4;
-		int32 minute = 5;
-		int32 second = 6;
-	}
-	Current current = 1;
-	string ntpserver = 2;
-	int32 timezone = 3;
-	
+  message Int32Value { int32 value = 1;}
+  message BoolValue { bool value = 1;}
+  message StringValue { string value = 1;}
+
+  message Header {
+   string id = 1;
+   int32 timestamp = 2;
   }
-  
+
+  message DateTimeValue {
+    Int32Value year = 1;
+    Int32Value month = 2;
+    Int32Value day = 3;
+    Int32Value hour = 4;
+    Int32Value minute = 5;
+    Int32Value second = 6;
+  }
+
+  message DateAndTime {
+    Maintenance.DateTimeValue date = 1;
+		Maintenance.StringValue ntp = 2;
+		Maintenance.Int32Value gmtOffSet = 3;
+  }
+
+  message Standby {
+    Maintenance.BoolValue activated = 1;
+  }
+
   message Temperature {
     message Units {
       bool celsius = 1;
       bool farenheit = 2;
     }
 
-    int32 value = 1;
+    Maintenance.Int32Value value = 1;
     Units units = 2;
   }
 
@@ -32,39 +44,34 @@ message Maintenance {
       message Unit {
       	message Isolation {
           message Iso {
-            int32 isolation = 1;
+            int32 value = 1;
+            int32 scaling = 2;
           }
-          int32 faultLocation = 3;
+
+          Iso alpha = 1;
           Iso rIso = 2;
+          Maintenance.Int32Value faultLocation = 3;
         }
+
         message OptimizersStatus {
-          int32 total = 1;
-          int32 online = 2;
+          Maintenance.Int32Value enabled = 1;
+          Maintenance.Int32Value connected = 2;
         }
 
         message Optimizer {
-          message Date {
-            int32 year = 1;
-            int32 month = 2;
-            int32 day = 3;
-            int32 hour = 4;
-            int32 minute = 5;
-            int32 second = 6;
-          }
+          Maintenance.StringValue serialNumber = 1;
+          Maintenance.BoolValue reports = 2;
+          Maintenance.DateTimeValue lastReport = 3;
+          Maintenance.Int32Value outputV = 5;
+          Maintenance.Int32Value inputV = 6;
+          Maintenance.Int32Value inputC = 7;
 
-          string serialNumber = 1;
-          bool online = 2;
-          Date lastReport = 3;
-          float energy = 4;
-          int32 outputV = 5;
-          int32 inputV = 6;
-          int32 inputC = 7;
           Maintenance.Temperature temperature = 8;
         }
 
-        string invSn = 1;
+        Maintenance.StringValue invSn = 1;
         repeated Optimizer optimizer = 2;
-		Isolation isolation = 3;
+		    Isolation isolation = 3;
         OptimizersStatus optimizersStatus = 4;
       }
 
@@ -76,11 +83,8 @@ message Maintenance {
     Inverters inverters = 1;
   }
 
-  message System {
-	string name = 1;
-	
-  }
-  Time time = 1;
+  DateAndTime dateAndTime = 1;
   Diagnostics diagnostics = 6;
-  System system = 13;
+  Standby standby = 7;
+  Header header = 13;
 }
